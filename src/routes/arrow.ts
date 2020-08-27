@@ -17,7 +17,7 @@ const connectHostInfo = (host: HostInfo) => {
     return {
         id: host.id,
         ip: host.ip,
-        password: host.password,
+        port: host.port,
     };
 };
 
@@ -25,15 +25,21 @@ routes.get("/server", (req, res) => {
     res.json(hosts.map(publicHostInfo));
 });
 
+routes.get("/server/raw", (req, res) => {
+    res.json(hosts);
+});
+
 routes.post("/server/:id", (req, res) => {
     const id = Number(req.params.id);
     if (isNaN(id)) {
         res.status(400);
+        res.end();
         return;
     }
     const target = hosts.find(h => h.id === id);
     if (target === undefined) {
         res.status(404);
+        res.end();
         return;
     }
     try {
@@ -43,6 +49,7 @@ routes.post("/server/:id", (req, res) => {
         }
     } catch {
         res.status(400);
+        res.end();
     }
 });
 
@@ -51,7 +58,14 @@ routes.post("/server", (req, res) => {
         ...req.body,
         id: idCounter,
         ip: req.realIp,
+        port: req.body.port || 7777,
     };
+
+    if (info.name === undefined) {
+        res.status(400);
+        res.end();
+        return;
+    }
 
     idCounter += 1;
     hosts.push(info);
@@ -63,6 +77,7 @@ routes.put("/server", (req, res) => {
     const index = hosts.findIndex(h => h.id === info.id && h.ip === req.realIp);
     if (index === -1) {
         res.status(400);
+        res.end();
         return;
     }
 
@@ -71,6 +86,26 @@ routes.put("/server", (req, res) => {
         ip: req.realIp,
     };
     hosts[index] = infoUpdated;
+});
+
+routes.delete("/server/:id", (req, res) => {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+        res.status(400);
+        res.end();
+        return;
+    }
+    const info = req.body as HostInfo;
+    const index = hosts.findIndex(h => h.id === info.id && h.ip === req.realIp);
+    if (index === -1) {
+        res.status(400);
+        res.end();
+        return;
+    }
+
+    hosts.splice(index, 1);
+    res.status(200);
+    res.end();
 });
 
 export default routes;
