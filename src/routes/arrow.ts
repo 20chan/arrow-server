@@ -21,17 +21,11 @@ const connectHostInfo = (host: HostInfo) => {
     };
 };
 
-routes.get("/", (req, res) => {
-    res.json({
-        "x-forwarded-for": req.headers["x-forwarded-for"],
-        "ip": req.ip,
-        "remoteAddress": req.connection.remoteAddress,
-    });
-    return;
+routes.get("/server", (req, res) => {
     res.json(hosts.map(publicHostInfo));
 });
 
-routes.post("/:id", (req, res) => {
+routes.post("/server/:id", (req, res) => {
     const id = Number(req.params.id);
     if (isNaN(id)) {
         res.status(400);
@@ -52,7 +46,7 @@ routes.post("/:id", (req, res) => {
     }
 });
 
-routes.post("/", (req, res) => {
+routes.post("/server", (req, res) => {
     const info: HostInfo = {
         ...req.body,
         id: idCounter,
@@ -64,7 +58,7 @@ routes.post("/", (req, res) => {
     res.json(info);
 });
 
-routes.put("/", (req, res) => {
+routes.put("/server", (req, res) => {
     const info = req.body as HostInfo;
     const index = hosts.findIndex(h => h.id === info.id && h.ip === req.realIp);
     if (index === -1) {
