@@ -72,8 +72,19 @@ routes.post("/server", (req, res) => {
     res.json(info);
 });
 
-routes.put("/server", (req, res) => {
+routes.put("/server/:id", (req, res) => {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+        res.status(400);
+        res.end();
+        return;
+    }
     const info = req.body as HostInfo;
+    if (info.id !== id) {
+        res.status(400);
+        res.end();
+        return;
+    }
     const index = hosts.findIndex(h => h.id === info.id && h.ip === req.realIp);
     if (index === -1) {
         res.status(400);
@@ -96,6 +107,11 @@ routes.delete("/server/:id", (req, res) => {
         return;
     }
     const info = req.body as HostInfo;
+    if (info.id !== id) {
+        res.status(400);
+        res.end();
+        return;
+    }
     const index = hosts.findIndex(h => h.id === info.id && h.ip === req.realIp);
     if (index === -1) {
         res.status(400);
