@@ -1,4 +1,4 @@
-import express, { response } from "express";
+import express from "express";
 import * as bodyParser from "body-parser";
 import arrow from "./routes/arrow";
 
@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 12000;
 app.use(bodyParser.json());
 
 app.get("/api/health", (req, res) => {
-    response.send("healthy");
+    res.send("healthy");
 });
 
 app.use("/api/arrow", arrow);
