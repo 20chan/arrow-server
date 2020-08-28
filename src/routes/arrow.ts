@@ -2,7 +2,7 @@ import * as express from "express";
 import { HostInfo } from "../entities";
 
 const routes = express.Router();
-let hosts: HostInfo[] = [];
+const hosts: HostInfo[] = [];
 let idCounter = 0;
 
 const publicHostInfo = (host: HostInfo) => {
@@ -46,7 +46,7 @@ routes.post("/server/:id", (req, res) => {
     }
     try {
         const password = req.body.password;
-        if (target.password === password) {
+        if (target.password === undefined || target.password === password) {
             res.json(connectHostInfo(target));
         } else {
             res.status(400);
@@ -59,11 +59,13 @@ routes.post("/server/:id", (req, res) => {
 });
 
 routes.post("/server", (req, res) => {
+    const password = req.body.password as string;
     const info: HostInfo = {
         ...req.body,
         id: idCounter,
         ip: req.realIp,
         port: req.body.port || 7777,
+        password: password.length === 0 ? undefined : password,
     };
 
     if (info.name === undefined) {
@@ -124,7 +126,7 @@ routes.delete("/server/:id", (req, res) => {
         return;
     }
 
-    hosts = hosts.splice(index, 1);
+    hosts.splice(index, 1);
     res.status(200);
     res.end();
 });
