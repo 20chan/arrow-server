@@ -2,7 +2,7 @@ import * as express from "express";
 import { HostInfo } from "../entities";
 
 const routes = express.Router();
-const hosts: HostInfo[] = [];
+export const hosts: HostInfo[] = [];
 let idCounter = 0;
 
 const publicHostInfo = (host: HostInfo) => {
