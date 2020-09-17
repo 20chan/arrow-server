@@ -3,7 +3,7 @@ import { hosts } from "../routes/arrow";
 
 export const healthCheck = (host: string, port: number): Promise<boolean> => {
     return new Promise<boolean>((resolve, reject) => {
-        const sock = net.connect(port, host);
+        const sock = net.connect({ port, host, timeout: 5000 });
         sock.on("error", () => resolve(false));
         sock.on("timeout", () => resolve(false));
         sock.on("data", buf => {
