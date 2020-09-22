@@ -8,4 +8,6 @@ export interface HostInfo {
     maxPlayers: number;
     currentPlayers: number;
     isPlaying: boolean;
+
+    lastPing: Date;
 }

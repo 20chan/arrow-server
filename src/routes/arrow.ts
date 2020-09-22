@@ -66,6 +66,7 @@ routes.post("/server", (req, res) => {
         ip: req.realIp,
         port: req.body.port || 7777,
         password: password.length === 0 ? undefined : password,
+        lastPing: new Date(),
     };
 
     if (info.name === undefined) {
@@ -102,6 +103,7 @@ routes.put("/server/:id", (req, res) => {
     const infoUpdated: HostInfo = {
         ...info,
         ip: req.realIp,
+        lastPing: new Date(),
     };
     hosts[index] = infoUpdated;
 });
@@ -121,7 +123,7 @@ routes.delete("/server/:id", (req, res) => {
     }
     const index = hosts.findIndex(h => h.id === info.id && h.ip === req.realIp);
     if (index === -1) {
-        res.status(400);
+        res.status(404);
         res.end();
         return;
     }
@@ -129,6 +131,23 @@ routes.delete("/server/:id", (req, res) => {
     hosts.splice(index, 1);
     res.status(200);
     res.end();
+});
+
+routes.get("/server/:id/ping", (req, res) => {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+        res.status(400);
+        res.end();
+        return;
+    }
+    const index = hosts.findIndex(h => h.id === id && h.ip === req.realIp);
+    if (index === -1) {
+        res.status(404);
+        res.end();
+        return;
+    }
+
+    hosts[index].lastPing = new Date();
 });
 
 export default routes;
