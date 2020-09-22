@@ -148,6 +148,8 @@ routes.get("/server/:id/ping", (req, res) => {
     }
 
     hosts[index].lastPing = new Date().getTime();
+    res.status(200);
+    res.end();
 });
 
 export default routes;
