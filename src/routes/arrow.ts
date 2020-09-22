@@ -66,7 +66,7 @@ routes.post("/server", (req, res) => {
         ip: req.realIp,
         port: req.body.port || 7777,
         password: password.length === 0 ? undefined : password,
-        lastPing: new Date(),
+        lastPing: new Date().getTime(),
     };
 
     if (info.name === undefined) {
@@ -103,7 +103,7 @@ routes.put("/server/:id", (req, res) => {
     const infoUpdated: HostInfo = {
         ...info,
         ip: req.realIp,
-        lastPing: new Date(),
+        lastPing: new Date().getTime(),
     };
     hosts[index] = infoUpdated;
 });
@@ -147,7 +147,7 @@ routes.get("/server/:id/ping", (req, res) => {
         return;
     }
 
-    hosts[index].lastPing = new Date();
+    hosts[index].lastPing = new Date().getTime();
 });
 
 export default routes;

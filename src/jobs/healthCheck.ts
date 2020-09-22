@@ -1,20 +1,9 @@
-import * as net from "net";
 import { hosts } from "../routes/arrow";
 
-export const healthCheck = (host: string, port: number): Promise<boolean> => {
-    return new Promise<boolean>((resolve, reject) => {
-        const sock = net.connect({ port, host, timeout: 5000 });
-        sock.on("error", () => resolve(false));
-        sock.on("timeout", () => resolve(false));
-        sock.on("data", buf => {
-            resolve(buf.readBigInt64BE() === BigInt("0x0000001f33761a00"));
-        });
-    });
-};
-
-export const healthCheckServers = async () => {
+export const healthCheckServers = (deadTime: number) => {
+    const now = new Date().getTime();
     for (let i = hosts.length - 1; i >= 0; i--) {
-        if (!await healthCheck(hosts[i].ip, hosts[i].port)) {
+        if (deadTime < now - hosts[i].lastPing) {
             hosts.splice(i, 1);
         }
     }
@@ -22,21 +11,23 @@ export const healthCheckServers = async () => {
 
 export class HealthCheck {
     public interval: number;
+    public deadTime: number;
     public lastCheck: Date;
     private i: NodeJS.Timeout;
 
-    constructor(interval: number) {
+    constructor(interval: number, deadTime: number) {
         this.setInterval(interval);
+        this.deadTime = deadTime;
     }
 
     public setInterval = (interval: number) => {
         this.interval = interval;
         clearInterval(this.i);
-        this.i = setInterval(async () => await this.check(), interval);
+        this.i = setInterval(this.check, interval);
     }
 
-    public check = async () => {
-        await healthCheckServers();
+    public check = () => {
+        healthCheckServers(this.deadTime);
         this.lastCheck = new Date();
     }
 }

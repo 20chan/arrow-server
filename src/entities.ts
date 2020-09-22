@@ -9,5 +9,5 @@ export interface HostInfo {
     currentPlayers: number;
     isPlaying: boolean;
 
-    lastPing: Date;
+    lastPing: number;
 }
